@@ -1,10 +1,14 @@
 '''
 @Author: RyanHuang
 @Github: DrRyanHuang
-
+@Brife : 
+    下载给定的数据集 `zip` 文件
+    若预下载过, 请注释 `wget.download(url, zip_file_str)` 
 @Notice:
     原程序是个 `shell` 脚本, 不能直接在 `windows` 运行, 笔者改为了 `Py` 文件
     以下为原 `shell` 脚本
+
+# ---------------------------- shell ----------------------------
 
 #!/bin/bash
 
@@ -29,6 +33,8 @@ mv "$TARGET_DIR/trainA" "$TARGET_DIR/train/A"
 mv "$TARGET_DIR/trainB" "$TARGET_DIR/train/B"
 mv "$TARGET_DIR/testA" "$TARGET_DIR/test/A"
 mv "$TARGET_DIR/testB" "$TARGET_DIR/test/B"
+
+# ---------------------------- shell ----------------------------
 '''
 
 import os
@@ -64,7 +70,7 @@ def pre_dateset(user_dataset_str):
     # user_dataset_str ：用户需要的数据集字符串
     
     url = 'https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/datasets/{}.zip'.format(user_dataset_str)
-    zip_file = './datasets/{}.zip'.format(user_dataset_str)
+    zip_file_str = './datasets/{}.zip'.format(user_dataset_str)
     target_dir = './datasets/{}'.format(user_dataset_str)
     
     if not os.path.exists('./datasets'):
@@ -72,14 +78,15 @@ def pre_dateset(user_dataset_str):
     
     # 下载数据集文件 `x.zip`
     # 若已经自行下载了数据集文件, 请将本行代码注释即可
-    wget.download(url, zip_file)
+    wget.download(url, zip_file_str)
     
-    zip_file = zipfile.ZipFile(zip_file)
+    zip_file = zipfile.ZipFile(zip_file_str)
     # 将 `zip` 打包的内容直接仍到目标文件夹中 
     zip_file.extractall('./datasets')
+    zip_file.close()
     
     # 删除掉下载的数据文件
-    os.remove(zip_file)
+    os.remove(zip_file_str)
     
     # 将数据目录改为预期的格式
     os.makedirs(os.path.join(target_dir, 'train'))
