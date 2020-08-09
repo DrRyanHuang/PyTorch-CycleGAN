@@ -11,9 +11,15 @@ Fork 自：https://github.com/aitorzip/PyTorch-CycleGAN
 
 ### [Visdom](https://github.com/facebookresearch/visdom)
 为了在nice的Web浏览器中绘制loss图并绘制生成图像，我们需要安装`visdom`
-
 ```
 pip3 install visdom
+```
+
+### wget
+为了下载数据集需要安装 `wget` 库，国内下载极慢，推荐手动下载
+
+```
+pip3 install wget
 ```
 
 ## Training
