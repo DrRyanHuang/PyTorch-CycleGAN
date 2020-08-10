@@ -14,8 +14,10 @@ def tensor2image(tensor):
         image = np.tile(image, (3,1,1))
     return image.astype(np.uint8)
 
+
 class Logger():
     def __init__(self, n_epochs, batches_epoch):
+        
         self.viz = Visdom()
         self.n_epochs = n_epochs
         self.batches_epoch = batches_epoch
@@ -33,12 +35,12 @@ class Logger():
         self.prev_time = time.time()
 
         sys.stdout.write('\rEpoch %03d/%03d [%04d/%04d] -- ' % (self.epoch, self.n_epochs, self.batch, self.batches_epoch))
-
+        
         for i, loss_name in enumerate(losses.keys()):
             if loss_name not in self.losses:
-                self.losses[loss_name] = losses[loss_name].data[0]
+                self.losses[loss_name] = losses[loss_name].item()   # 只有 0 维张量可以用 `.item()` 方法
             else:
-                self.losses[loss_name] += losses[loss_name].data[0]
+                self.losses[loss_name] += losses[loss_name].item()
 
             if (i+1) == len(losses.keys()):
                 sys.stdout.write('%s: %.4f -- ' % (loss_name, self.losses[loss_name]/self.batch))
@@ -85,19 +87,21 @@ class ReplayBuffer():
     def push_and_pop(self, data):
         to_return = []
         for element in data.data:
-            element = torch.unsqueeze(element, 0)
+            element = torch.unsqueeze(element, 0) # 在指定位置添加一个维度
             if len(self.data) < self.max_size:
                 self.data.append(element)
                 to_return.append(element)
             else:
                 if random.uniform(0,1) > 0.5:
                     i = random.randint(0, self.max_size-1)
-                    to_return.append(self.data[i].clone())
+                    to_return.append(self.data[i].clone())  # torch.Tensor.clone 相当于 .copy
                     self.data[i] = element
                 else:
                     to_return.append(element)
         return Variable(torch.cat(to_return))
 
+
+# 设置学习率的变化方式
 class LambdaLR():
     def __init__(self, n_epochs, offset, decay_start_epoch):
         assert ((n_epochs - decay_start_epoch) > 0), "Decay must start before the training session ends!"
@@ -108,11 +112,16 @@ class LambdaLR():
     def step(self, epoch):
         return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch)/(self.n_epochs - self.decay_start_epoch)
 
+
+# 给参数设置初始化方式
 def weights_init_normal(m):
+    
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
-        torch.nn.init.normal(m.weight.data, 0.0, 0.02)
+        # 如果找到了 'Conv' 字符串
+        torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
     elif classname.find('BatchNorm2d') != -1:
-        torch.nn.init.normal(m.weight.data, 1.0, 0.02)
+        # 如果找到了 'BatchNorm2d' 字符串
+        torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
         torch.nn.init.constant(m.bias.data, 0.0)
 

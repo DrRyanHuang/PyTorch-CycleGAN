@@ -56,7 +56,7 @@ pip3 install wget
 
 如果您没有GPU，请删除`--cuda`选项，尽管建议用GPU!
 
-您还可以通过在另一个终端中运行`python3 -m visdom`并打开[http://localhost:8097/](http://localhost:8097/)来查看训练进度以及实时输出图像。
+您还可以通过在另一个终端中运行`python -m visdom.server`并打开[http://localhost:8097/](http://localhost:8097/)来查看训练进度以及实时输出图像。
 
 
 
